@@ -56,15 +56,18 @@
 %\date{}
 \maketitle
 
-The polynomial chaos expansion method\footnote{Also known as the spectral method or stochastic spectral method.} is an efficient and powerful tool used for understanding and quantifying the uncertainty in models of complex systems, in what is broadly referred to as uncertainty quantification (UQ). Given a mathematical model with a set of parameters as inputs, one often wishes to understand how uncertainty in those parameters affects the outputs of the model. For models with modest computational demands, this uncertainty propagation (UP) can be analyzed using monte carlo simulation, where a distribution is assumed for each parameter, a large number of random samples of the parameter set are drawn, and the model is independently simulated using each random parameter set as input. Given the distribution of inputs, a distribution of model outputs can then be used to quantify model uncertainty. However, for computationally demanding models, it might not be feasible to run a large number of simulations, so alternative approaches with lower computational demands are needed. The polynomial chaos expansion method is one such approach.
+The polynomial chaos expansion method\footnote{Also known as the spectral method or stochastic spectral method.} is an efficient and powerful tool used for quantifying the uncertainty in models of complex systems, in what is broadly referred to as uncertainty quantification (UQ). Given a mathematical model with a set of parameters as inputs, one often wishes to understand how uncertainty in those parameters affects the outputs of the model. For models with modest computational demands, this uncertainty propagation (UP) can be analyzed using monte carlo simulation, where a distribution is assumed for each parameter, a large number of random samples of the parameter set are drawn, and the model is independently simulated using each random parameter set as input. Given the distribution of inputs, a distribution of model outputs can then be used to quantify model uncertainty. However, for computationally demanding models, it might not be feasible to run a large number of simulations, so alternative approaches with lower computational demands are needed. The polynomial chaos expansion method is one such approach.
 
-\qquad This paper provides a brief introduction to polynomial chaos (PC) with a focus on detailed derivations and numerical calculations, with the goal of giving readers some intuition about the method and how to apply it in practice. More detailed treatment of the material can be found in Xiu \cite{X10} (or Xiu \cite{X04}), which is more technical in nature but still quite accessible. Before covering polynomial chaos, we start with an example of the solution to a simple ODE, where we review concepts such as orthogonality and series representations of functions. This gives us the foundation to cover polynomial chaos. The latest version of this paper along with an accompanying python notebook with solutions to all exercises can be found here:
+\qquad This paper provides a brief introduction to polynomial chaos (PC) with a focus on detailed derivations and numerical calculations, with the goal of giving readers some intuition about the mechanics of the method and how to apply it. More detailed treatment of the material can be found in Xiu \cite{X10} (or Xiu \cite{X04}), which is more technical in nature but still quite accessible. Before covering polynomial chaos, we start with an example of the solution to a simple ODE, where we review concepts such as orthogonality and series representations of functions. This gives us the foundation to cover polynomial chaos. The latest version of this paper along with an accompanying python notebook with solutions to all exercises can be found here:
 
 \begin{center}
 \href{https://github.com/dcline1/PolynomialChaos/}{https://github.com/dcline1/PolynomialChaos}
 \end{center}
 
-\
+
+
+
+
 
 
 
@@ -169,7 +172,6 @@ b_m = \frac{\langle f(x) \Phi_m(x) \rangle }{\langle \Phi_m^2(x) \rangle}. \labe
 
 In this section, we introduced the Fourier series representation of a function and used the orthogonality of functions to obtain the coefficients. These concepts are fundamental to polynomial chaos.
 
-\
 
 
 
@@ -214,7 +216,11 @@ f(x) \approx f_p(x) = \sum_{j=0}^{p}  a_j \Psi_j(x) \label{pce_trunc}
 
 \qquad  Linear algebra provides some intuition for \eqref{simple}. In linear algebra, an $n$-dimensional vector can be represented as a linear combination of $n$ basis vectors. If we have a function instead of a vector, we can construct a vector as a discretized version of a function by taking function values at a discrete set of points. As we increase the resolution of the sampling points, we get an infinite dimensional vector in the limit. Therefore, functions can be thought of as infinite dimensional vectors, and we see that the linear combination of an infinite number of orthogonal polynomials for functions is analogous to a linear combination of $n$ orthogonal basis vectors for $n$-dimensional vectors. 
 
-\
+
+
+
+
+
 
 
 
@@ -276,7 +282,7 @@ H_n(z) = e^{\frac{1}{2} z^2} (-1)^n \frac{d^n}{dz^n} e^{-\frac{1}{2} z^2}, \labe
 
 which also satisfies $H_0(z) = 1$. By assigning $H_1(z) = H_1(z)$, $H_2(z) = H_2(z, z)$, $H_3(z) = H_3(z, z, z)$, and so on, we see that \eqref{hpoly1d} fits the form given in \eqref{hpoly}, since $H_n(z)$ is just $H_n (z_{i_1}, ..., z_{i_n})$ for $d = 1$. These are the Hermite polynomials for scalar $z$.\footnote{Specifically, the {\em probabilist's} Hermite polynomials. If we instead used $e^{-z^2}$ for the derivation, we would get the {\em physicist's} Hermite polynomials.}
 
-\qquad It turns out that Hermite polynomials are orthogonal.\footnote{see, e.g., \href{https://www.youtube.com/playlist?list=PL2uXHjNuf12byaQWF2IU7i7h8D70-d8MW}{these videos} for a proof.} More concretely, it can be shown that the inner product has the following closed-form solution
+\qquad It turns out that Hermite polynomials are orthogonal.\footnote{See, e.g., \href{https://www.youtube.com/playlist?list=PL2uXHjNuf12byaQWF2IU7i7h8D70-d8MW}{these videos} for a proof.} More concretely, it can be shown that the inner product has the following closed-form solution
 \begin{equation}
 \langle H_m(z) H_n(z) \rangle = \int_{-\infty}^{\infty} H_m(z) H_n(z) \phi(z) dx =  n! \, \delta_{mn} \label{hip}
 \end{equation}
@@ -305,27 +311,25 @@ f(z) = \sum_{j=0}^{\infty} a_j H_j(z).
 \end{equation}
 
 
-
 \
 
 \
 
-\textbf{Exercise 3.a} \ Plot the first 3, 5, and 8 Hermite polynomials. What can be said about them?
+\textbf{Exercise 3.a} Plot the first 3, 5, and 8 Hermite polynomials. What can be said about them?
 
 \
 
-\textbf{Exercise 3.b} \ Construct the Hermite polynomial expansion of $f(z) = 10 + 2z$.
+\textbf{Exercise 3.b} Construct the Hermite polynomial expansion of $f(z) = 10 + 2z$.
 
 \
 
-\textbf{Exercise 3.c} \ Construct the Hermite polynomial expansion of $f(z) = \sin(4z)/z$.
+\textbf{Exercise 3.c} Construct the Hermite polynomial expansion of $f(z) = \sin(4z)/z$.
 
 \
 
-\textbf{Exercise 3.d} \ Construct the Hermite polynomial expansion of $f(z) = |z|$.
+\textbf{Exercise 3.d} Construct the Hermite polynomial expansion of $f(z) = |z|$.
 
 \
-
 
 
 
@@ -340,29 +344,31 @@ We've seen how to represent an arbitrary deterministic function as a linear comb
 
 
 
-\
-
-\
-
-\textbf{Exercise 4.a} \ Construct the Hermite polynomial expansion of $f(Z) = Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
-
-\
-
-\textbf{Exercise 4.b} \ Construct the Hermite polynomial expansion of $f(Z) = 10 + 2Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
-
-\
-
-\textbf{Exercise 4.c} \ Construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
 
 \
 
 \
+
+\textbf{Exercise 4.a} Construct the Hermite polynomial expansion of $f(Z) = Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
+
+\
+
+\textbf{Exercise 4.b} Construct the Hermite polynomial expansion of $f(Z) = 10 + 2Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
+
+\
+
+\textbf{Exercise 4.c} Construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
+
+\
+
+\
+
 
 
 
 This works well for functions of standard classes of known probability distributions. But what if we have an arbitrary random variable $Y$ with cumulative distribution function $F_Y(y) = P(Y \leq y)$? In this case, not only might $Y$ not be a function of a known random variable $X$, but the CDF might not even have an analytical form (e.g. it could be an empirical distribution). By transforming the germ $X$ into a uniform random variable, we can generalize the inner product $\langle Y \ \Psi_i(x) \rangle$ to handle any arbitrary $Y$.
 
-\qquad We start by transforming $X$ into a $U \sim U(0,1)$ uniform random variable using its CDF $F_X(x) = P(X \leq x)$, since $F_X(X) \sim U$.\footnote{The cumulative distribution function $P(X \leq x) = F_X(x) = u$ maps any value of $x$ into $u \in [0, 1]$, and the inverse transform maps $F_X^{-1}(u) = x$ for any $u \in [0, 1]$. Furthermore, $F_X^{-1}(F_X(x)) = x$ and $F_X(F_X^{-1}(u)) = u$. Therefore, 
+\qquad We start by transforming $X$ into a $U \sim U(0,1)$ uniform random variable using its CDF $F_X(x) = P(X \leq x)$, since $F_X(X) \sim U$.\footnote{The cumulative distribution function $P(X \leq x) = F_X(x) = u$ maps any value of $x$ into $u \in [0, 1]$, and the inverse transform $F_X^{-1}(u) = x$ maps $u \in [0, 1]$ into x. Furthermore, $F_X^{-1}(F_X(x)) = x$ and $F_X(F_X^{-1}(u)) = u$. Therefore, 
 \begin{equation*}
 P(F_X(X) \leq c) = P(X \leq F_X^{-1}(c)) = F_X(F_X^{-1}(c)) = c, \qquad c \in [0, 1]
 \end{equation*}
@@ -399,29 +405,36 @@ f(u) = \sum_{j=0}^{\infty}  a_j \Psi_j(F_X^{-1}(u)) \label{simple2}
 \end{equation}
 
 
-\
 
-\
 
-\textbf{Exercise 4.d} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
-
-\
-
-\textbf{Exercise 4.e} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Beta(\alpha, \beta)$, where $\alpha = \beta = 0.5$. What are the values of the coefficients?
-
-\
-
-\textbf{Exercise 4.f} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Exp(\lambda)$, where $\lambda = 1$. What are the values of the coefficients?
 
 \
 
 \
 
-Note that instead of using \eqref{ip_unif}--\eqref{simple2} for the Hermite polynomial chaos expansion of the exponential random variable in Exercise 4.f, we could have directly used \eqref{orth_poly}--\eqref{pce_trunc} with Leguerre polynomials, since their associated germ is the exponential (Gamma) pdf. So which approach is better? While both will work, the polynomial chaos expansion using the orthogonal polynomial basis associated with the given random variable (Leguerre in this case) will usually converge to the random variable much quicker (i.e. the expansion will require a smaller $p$, sometimes substantially smaller).
+\textbf{Exercise 4.d} Using \eqref{pc_coef_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
+
+\
+
+\textbf{Exercise 4.e} Using \eqref{pc_coef_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Beta(\alpha, \beta)$, where $\alpha = \beta = 0.5$. What are the values of the coefficients?
+
+\
+
+\textbf{Exercise 4.f} Using \eqref{pc_coef_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Exp(\lambda)$, where $\lambda = 0.5$. What are the values of the coefficients?
 
 \
 
 \
+
+
+
+
+
+Note that instead of using \eqref{pc_coef_unif}--\eqref{simple2} for the Hermite polynomial chaos expansion of the exponential random variable in Exercise 4.f, we could have directly used \eqref{orth_poly}--\eqref{pce_trunc} with Leguerre polynomials, since their associated germ is the exponential (Gamma) pdf. So which approach is better? While both will work, the polynomial chaos expansion using the orthogonal polynomial basis associated with the given random variable (Leguerre in this case) will usually converge to the random variable much quicker (i.e. the expansion will require a smaller $p$, sometimes substantially smaller).
+
+
+
+
 
 
 \subsection{Statistical Moments}
@@ -455,6 +468,10 @@ Var(f(X)) & = & E \left[ f^2(X) \right] - E^2 \left[ f(X) \right] \nonumber \\
 
 since $\langle \Psi_0^2(X) \rangle = 1$. Again, this holds regardless of the chosen orthogonal polynomial basis. Therefore, once we solve for the coefficients of our polynomial chaos representation of $f$, the mean and variance are essentially automatic using \eqref{pce_mu} and \eqref{pce_var}.
 
+
+
+
+
 \
 
 \
@@ -463,7 +480,6 @@ since $\langle \Psi_0^2(X) \rangle = 1$. Again, this holds regardless of the cho
 
 \
 
-\
 
 
 
@@ -481,9 +497,12 @@ We will use the following simple equation as our example model
 \frac{dv(t)}{dt} = - r \, v(t), \qquad v(0) = v_0 = 3 \label{v_example}
 \end{equation}
 
-where the model parameter $r$ is random. This problem could be calculated using monte carlo simulation, but that requires many simulations of the model. If the model is expensive to evaluate, this might be prohibitive.
+where the model parameter $r$ is random. We wish to calculate the average model response, as well as the 95\% confidence intervals. This problem can be solved using monte carlo simulation, which requires many simulations of the model. In practice, if the model is computationally expensive to evaluate, running a monte carlo simulation might be prohibitively expensive.
 
-\qquad Alternatively, we could use polynomial chaos, which can be applied in two main ways: intrusive and non-intrusive. We will cover both approaches below.
+\qquad Alternatively, we can use polynomial chaos, which can be applied in two main ways: intrusive and non-intrusive. We will cover both approaches below.
+
+
+
 
 \
 
@@ -493,18 +512,20 @@ where the model parameter $r$ is random. This problem could be calculated using 
 
 \
 
-\
+
+
+
 
 
 
 \subsection{Intrusive Approach}
 
-The intrusive approach applies polynomial chaos expansions directly to both the model parameters {\em and} model equations. Intrusive methods therefore require full knowledge of the model equations. The most common intrusive approach is known as stochastic Galerkin projection.
+The intrusive approach applies polynomial chaos expansions directly to both the model parameters {\em and} model equations. Intrusive methods therefore require full knowledge of the model equations. The most common intrusive approach is the stochastic Galerkin projection, which we cover below.
 
 \qquad Given our example model, we start by applying the polynomial chaos expansion method to both $r$ and $v(t)$ using the same orthogonal polynomial basis (with germ $x$) for both as follows
 \begin{eqnarray}
-r(x) & \approx & \sum_{i=0}^p \hat{r}_i \Psi_i(x) \label{r_pce} \\
-v(x, t) & \approx & \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x) \label{v_pce}
+r(x) & \approx & \sum_{i=0}^p \hat{r}_i \Psi_i(x), \label{r_pce} \\
+v(x, t) & \approx & \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x). \label{v_pce}
 \end{eqnarray}
 
 Taking the derivative of \eqref{v_pce} with respect to time gives 
@@ -512,13 +533,13 @@ Taking the derivative of \eqref{v_pce} with respect to time gives
 \frac{dv(x, t)}{dt} \approx \frac{d}{dt} \left( \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x) \right) = \sum_{j=0}^p \frac{d \hat{v}_j(t)}{dt} \Psi_j(x). \label{dv_pce}
 \end{equation}
 
-Similar to the derivation in Section 2, we multiply \eqref{dv_pce} by $\Psi_k(x)$ for some $0 \leq k \leq  p$ and take the inner product to get
+Note that the polynomials, $\Psi_j(x)$, are not functions of time. Similar to the derivation in Section 2, we multiply \eqref{dv_pce} by $\Psi_k(x)$ for some $0 \leq k \leq  p$ and take the inner product to get
 \begin{eqnarray}
 \int \frac{dv(x, t)}{dt} \Psi_k(x) w(x) dx & \approx & \int \left( \sum_{j=0}^p \frac{d\hat{v}_j(t)}{dt} \Psi_j(x) \right) \Psi_k(x) w(x) dx  \nonumber \\
 & = & \sum_{j=0}^p \int \frac{d\hat{v}_j(t)}{dt} \Psi_j(x) \Psi_k(x) w(x) dx \nonumber \\
 & = & \sum_{j=0}^p \frac{d\hat{v}_j(t)}{dt} \int \Psi_j(x) \Psi_k(x) w(x) dx \nonumber \\
 & = & \sum_{j=0}^p \frac{d\hat{v}_j(t)}{dt} \langle \Psi_j(x) \Psi_k(x) \rangle \nonumber \\
-& = & \frac{d\hat{v}_k(t)}{dt} \langle \Psi_k^2(x) \rangle \label{lhs}
+& = & \frac{d\hat{v}_k(t)}{dt} \langle \Psi_k^2(x) \rangle. \label{lhs}
 \end{eqnarray}
 
 Similarly, the inner product of the right-hand side of \eqref{v_example} and $\Psi_k(x)$ can be approximated using the polynomial chaos representations in \eqref{r_pce} and \eqref{v_pce} as follows
@@ -526,30 +547,36 @@ Similarly, the inner product of the right-hand side of \eqref{v_example} and $\P
  - \int r(x) v(x, t) \Psi_k(x) w(x) dx & \approx & - \int \left( \sum_{i=0}^p \hat{r}_i \Psi_i(x) \right) \left( \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x) \right) \Psi_k(x) w(x) dx \nonumber \\
 & = & - \int \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \Psi_i(x) \Psi_j(x) \Psi_k(x) w(x) dx \nonumber \\
 & = & - \sum_{i=0}^p \sum_{j=0}^p \int \hat{r}_i \hat{v}_j(t) \Psi_i(x) \Psi_j(x) \Psi_k(x) w(x) dx \nonumber \\
-& = & - \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle \label{rhs}
+& = & - \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle, \label{rhs}
 \end{eqnarray}
 
-where the triple product, which has a closed-form solution, is given by
-\begin{equation}
-\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle = \int \Psi_i(x) \Psi_j(x) \Psi_k(x) w(x) dx = \frac{i! j! k!}{(s-i)! (s-j)! (s-k)!}
-\end{equation}
- 
-where $s \geq \min\{i, j, k\}$ and $s = (i + j + k)/2$ is even. Equating \eqref{lhs} and \eqref{rhs}, we get 
+where the triple product is given by\footnote{The triple product for Hermite polynomials has a closed-form solution, given by
 \begin{equation*}
-\frac{d\hat{v}_k(t)}{dt} \langle \Psi_k^2(x) \rangle = - \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle
+\langle H_i(z) H_j(z) H_k(z) \rangle = \int H_i(z) H_j(z) H_k(z) \phi(z) dz = \frac{i! j! k!}{(s-i)! (s-j)! (s-k)!},
+\end{equation*}
+where $s \geq \min\{i, j, k\}$ and $s = (i + j + k)/2$ is even.}
+\begin{equation}
+\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle = \int \Psi_i(x) \Psi_j(x) \Psi_k(x) w(x) dx. \label{tp}
+\end{equation}
+
+Equating \eqref{lhs} and \eqref{rhs}, we get 
+\begin{equation*}
+\frac{d\hat{v}_k(t)}{dt} \langle \Psi_k^2(x) \rangle = - \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle,
 \end{equation*}
 
 or in terms of the derivative,
 \begin{equation}
-\frac{d\hat{v}_k(t)}{dt} = - \sum_{j=0}^p \hat{v}_j(t) \left( \sum_{i=0}^p \hat{r}_i \frac{\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle}{\langle \Psi_k^2(x) \rangle } \right) \label{dvk_dt}
+\frac{d\hat{v}_k(t)}{dt} = - \sum_{j=0}^p \hat{v}_j(t) \left( \sum_{i=0}^p \hat{r}_i \frac{\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle}{\langle \Psi_k^2(x) \rangle } \right). \label{dvk_dt}
 \end{equation}
 
-This looks quite complicated, but note that quantity in parentheses is constant, since $\hat{r}_i$, $\langle \Psi_k^2(x) \rangle$, and $\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle$ are all constants. Therefore, for the vector $\hat{v} \in \mathbb{R}^p$, we have the following $p$-dimensional linear system of equations
+This looks quite complicated, but note that quantity in parentheses is constant, since $\hat{r}_i$, $\langle \Psi_k^2(x) \rangle$, and $\langle \Psi_i(x) \Psi_j(x) \Psi_k(x) \rangle$ are all constants. Therefore, for the vector $\hat{v}(t) \in \mathbb{R}^p$, we have the following $p$-dimensional linear system of equations
 \begin{equation}
-\frac{d \hat{v}}{dt} = A \hat{v} \label{p_ode}
+\frac{d \hat{v}}{dt} = A \hat{v}, \label{p_ode}
 \end{equation}
 
-for some $p \times p$ matrix $A$. In other words, the Galerkin projection gives us a single $p^{th}$ order ODE to solve instead of $N$ ODE's we'd need to run for monte carlo analysis. Since $p$ is typically small (e.g. $p < 50$) and $N$ is typically large (e.g. $N = 10,000$), the savings in computational time can be substantial.
+where entries in the $p \times p$ matrix $A$ are given by \eqref{dvk_dt}. In other words, the stochastic Galerkin projection gives us a single $p^{th}$ order ODE to solve instead of the $N$ ODE's we'd need to run for monte carlo analysis. Since $p$ is typically small (e.g. $p < 50$) and $N$ is typically large (e.g. $N = 10,000$), the savings in computational time can be substantial.
+
+
 
 
 
@@ -565,15 +592,20 @@ for some $p \times p$ matrix $A$. In other words, the Galerkin projection gives 
 
 \
 
-\
+
+
+
+
 
 
 
 \subsection{Non-Intrusive Approach}
 
-When we do not know the details of the model or the model is not amenable to the intrusive approach (e.g. when we aren't able to reformulate and recode the model, as is necessary with an intrusive approach), we can use a non-intrusive approach, where we essentially treat the model as a black box.
+When we do not know the details of the model or the model is not amenable to the intrusive approach (e.g. when we aren't able to reformulate and recode the model, as is necessary with the intrusive approach), we can use a non-intrusive approach, where we essentially treat the model as a black box.
 
-\qquad Just like the intrusive approach, we start by assuming $r$ and $v(t)$ are represented using \eqref{r_pce} and \eqref{v_pce}. But rather than explicitly deriving the equations for $v(t)$, we instead take a set of $N$ pairs of model parameter inputs, $r_i = r(x_i)$, and model outputs, $v_i = v(x_i, t)$, where $x_i$ is the germ and $t$ is the same fixed value for for all $i$. In other words, we generate the $x_i$ (e.g. using some experimental design methodology), derive $r(x_i)$ using its polynomial chaos expansion \eqref{r_pce}, and then evaluate $v_i = v(t)$ using each value of $r_i$. This gives us our training set $\mathcal{D} = \{ (x_i, v_i) \ | \ 1 \leq i \leq N \}$. We wish to solve for the coefficients in \eqref{v_pce}, such that the following equations are satisfied for all samples
+\qquad Just like the intrusive approach, we start by assuming $r$ and $v(t)$ are represented using \eqref{r_pce} and \eqref{v_pce}. But rather than explicitly deriving the equations for $v(t)$, we instead take a set of $N$ pairs of model parameter inputs, $r_i = r(x_i)$, and model outputs, $v_i = v(x_i, t)$, where $x_i$ is the germ and $t$ is the same fixed value for for all $i$. In other words, we generate the $x_i$ (e.g. using some experimental design methodology), derive $r(x_i)$ using its polynomial chaos expansion \eqref{r_pce}, and then evaluate $v_i = v(t)$ using each value of $r_i$. This gives us our training set $\mathcal{D} = \{ (x_i, v_i) \ | \ 1 \leq i \leq N \}$.
+
+\qquad We wish to solve for the coefficients in \eqref{v_pce}, such that the following equations are satisfied for all samples
 \begin{equation}
 \sum_{j=0}^{p}  a_j \Psi_j(x_i) \approx v_i, \qquad 1 \leq i \leq N. \label{pce_train} 
 \end{equation}
@@ -583,29 +615,41 @@ Note that this function is linear in $a_j$ and that the $x_i$ are transformed us
 \begin{bmatrix} \Psi_0(x_1) & \cdots & \Psi_p(x_1) \\ \vdots & \ddots & \vdots \\ \Psi_0(x_N) & \cdots & \Psi_p(x_N) \end{bmatrix}
 \begin{bmatrix} a_0 \\  \vdots \\  a_p \end{bmatrix}
 \approx
-\begin{bmatrix} v_1 \\  \vdots \\  v_N \end{bmatrix}
+\begin{bmatrix} v_1 \\  \vdots \\  v_N \end{bmatrix},
 \end{equation}
 
 or more succinctly
 \begin{equation}
-\mathbf{\Psi} \mathbf{a} \approx \mathbf{v}
+\mathbf{\Psi} \mathbf{a} \approx \mathbf{v},
 \end{equation}
 
-where $\mathbf{\Psi}$ is the $N \times p$ design matrix, $\mathbf{a}$ is a $p \times 1$ column vector, and $\mathbf{v}$ is a $N \times 1$ column vector. Since our goal is to solve for the coefficient vector, $\mathbf{a}$, we can formulate the problem using least-squares and solve it with linear regression. Note that the polynomial basis functions can grow very large for higher-order expansions, so it might be desirable to use some form of regularization (e.g. Ridge regression) when solving for the coefficients to limit their size.
+where $\mathbf{\Psi}$ is the $N \times p$ design matrix, $\mathbf{a}$ is a $p \times 1$ column vector, and $\mathbf{v}$ is a $N \times 1$ column vector. Since our goal is to solve for the coefficient vector, $\mathbf{a}$, we can formulate the problem using least-squares and solve it with linear regression.\footnote{To avoid very large coefficients due to numerical noise, it might be desirable in practice to use some form of regularization (e.g. Ridge regression) along with cross validation.}
 
 \qquad The number of function evaluations required for fitting the coefficients is typically much smaller than for monte carlo simulation. This means that it's often much faster to fit the surrogate function (i.e. coefficients) and calculate moments than it is to run a full monte carlo simulation. Therefore, just like intrusive methods, the savings in computational time can be substantial.
 
+\qquad Another popular non-intrusive approach is the stochastic collocation method, which we do not cover here (see Xiu \cite{X10}).
 
+
+
+
+
+
+
+\
+
+\
+
+\textbf{Exercise 5.d} Taking $N = 100$, construct the vector $z_i = F_Z^{-1}(u_i)$, where $u_i = (i + 0.5)/N$ are equally spaced points over the interval $(0, 1)$. For each $z_i$, calculate $r_i = 0.2 + 0.05 z_i$ and evaluate \eqref{v_example} numerically over $t = [0, 10]$ using $10,000$ timesteps. Construct the design matrix $\mathbf{\Psi}$ using $\{ z_1, ..., z_N \}$ and Hermite polynomials as the orthogonal polynomial basis. For each timestep, solve for the coefficients $(a_1, ..., a_p)$ using linear regression such that the coefficients are functions of time $(a_1(t), ..., a_p(t))$. Plot the solutions (coefficients) through time. Calculate the mean and standard deviation through time using the coefficients. Plot the mean and 95\% confidence intervals through time. Compare with the monte carlo results in 5.a.
 
 \
 
 \
 
-\textbf{Exercise 5.d} Taking $N = 100$, construct the vector $z_i = F_Z^{-1}(u_i)$, where $u_i = (i + 0.5)/N$ are equally spaced points over the interval $(0, 1)$. For each $z_i$, calculate $r_i = 0.2 + 0.05 x_i$ and evaluate \eqref{v_example} numerically over $t = [0, 10]$ using $10,000$ timesteps. Construct the design matrix $\mathbf{\Psi}$ using $\{ z_1, ..., z_N \}$ and Hermite polynomials as the orthogonal polynomial basis. For each timestep, solve for the coefficients $(a_1, ..., a_p)$ using linear regression such that the coefficients are functions of time $(a_1(t), ..., a_p(t))$. Plot the solutions (coefficients) through time. Calculate the mean and standard deviation through time using the coefficients. Plot the mean and 95\% confidence intervals through time. Compare with the monte carlo results in 5.a.
 
-\
 
-\
+
+
+
 
 
 
