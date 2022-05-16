@@ -56,14 +56,15 @@
 %\date{}
 \maketitle
 
-The polynomial chaos expansion method\footnote{Also known as the spectral method or stochastic spectral method.} is a tool used for uncertainty quantification (UQ), which is concerned with understanding the uncertainty in models of complex systems. Oftentimes, one has a model of some phenomena, which takes a set of parameters as inputs. However, the values of these inputs are not known with certainty and one wishes to understand how that uncertainty affects the outputs of the model. For models with modest computational demands, this uncertainty propagation (UP) can often be analyzed using monte carlo simulation (MCS), where a distribution is assumed for each parameter, and random realizations of the parameter set are used to simulate the model, which provides a distribution of the model outputs given the distributions of inputs. However, for computationally demanding models, it might not be feasible to run a large number of independent simulations of the model, so alternative approaches with lower computational demands are needed. The polynomial chaos expansion method is often used when analyzing uncertainty propagation.
+The polynomial chaos expansion method\footnote{Also known as the spectral method or stochastic spectral method.} is an efficient and powerful tool used for understanding and quantifying the uncertainty in models of complex systems, in what is broadly referred to as uncertainty quantification (UQ). Given a mathematical model with a set of parameters as inputs, one often wishes to understand how uncertainty in those parameters affects the outputs of the model. For models with modest computational demands, this uncertainty propagation (UP) can be analyzed using monte carlo simulation, where a distribution is assumed for each parameter, a large number of random samples of the parameter set are drawn, and the model is independently simulated using each random parameter set as input. Given the distribution of inputs, a distribution of model outputs can then be used to quantify model uncertainty. However, for computationally demanding models, it might not be feasible to run a large number of simulations, so alternative approaches with lower computational demands are needed. The polynomial chaos expansion method is one such approach.
 
-\qquad This paper provides a brief introduction to polynomial chaos (PC) for graduate students in engineering and applied science, who would like to gain some rudimentary understanding of the technique. More detailed treatment of the material can be found in Xiu \cite{X10} (or Xiu \cite{X04}), which is more technical in nature but still quite accessible. Before covering polynomial chaos, we start with an example of the solution to a simple ODE, where we review concepts such as orthogonality and series representation of functions. This gives us the foundation to cover polynomial chaos. The latest version of this paper along with an accompanying python notebook with solutions to all examples can be found here:
+\qquad This paper provides a brief introduction to polynomial chaos (PC) with a focus on detailed derivations and numerical calculations, with the goal of giving readers some intuition about the method and how to apply it in practice. More detailed treatment of the material can be found in Xiu \cite{X10} (or Xiu \cite{X04}), which is more technical in nature but still quite accessible. Before covering polynomial chaos, we start with an example of the solution to a simple ODE, where we review concepts such as orthogonality and series representations of functions. This gives us the foundation to cover polynomial chaos. The latest version of this paper along with an accompanying python notebook with solutions to all exercises can be found here:
 
 \begin{center}
 \href{https://github.com/dcline1/PolynomialChaos/}{https://github.com/dcline1/PolynomialChaos}
 \end{center}
 
+\
 
 
 
@@ -92,7 +93,7 @@ u(x) & = & c_1 ( \cos \sqrt{\lambda} x + i \sin \sqrt{\lambda} x ) +c_2 ( \cos \
 & = & a \cos \sqrt{\lambda} x + b \sin \sqrt{\lambda} x, \label{sol}
 \end{eqnarray}
 
-where $a = (c_1 + c_2)$ and $b = (c_1 - c_2)i$. Note that since $c_1$ and $c_2$ can be complex, we can take $b$ to be real.\footnote{For example, take $c_1 = (a - bi)/2$ and $c_2 = (a + bi)/2$, where $a, b \in \mathbb{R}$.} We say that \eqref{sol} is the real solution of \eqref{ode}. Applying the first boundary condition, $u(0) = 0$, we immediately get $a = 0$, since $\cos 0 = 1$. Applying the second boundary condition gives
+where $a = (c_1 + c_2)$ and $b = (c_1 - c_2)i$. Note that since $c_1$ and $c_2$ can be complex, we can take $b$ to be real.\footnote{For example, take $c_1 = (a - bi)/2$ and $c_2 = (a + bi)/2$, where $a, b \in \mathbb{R}$.} We say that \eqref{sol} is the real solution of \eqref{ode}. Applying the first boundary condition, $u(0) = 0$, we immediately get $a = 0$, since $\cos 0 = 1$. Applying the second boundary condition, $u(L) = 0$, gives
 \begin{equation*}
 u(L) = b \sin \sqrt{\lambda} L = 0,
 \end{equation*}
@@ -102,7 +103,7 @@ which is only true if $b = 0$ (the trivial solution) or $\sin \sqrt{\lambda} L =
 \lambda = \left( \frac{n \pi}{L} \right)^2.
 \end{equation*}
 
-Plugging this back into \eqref{sol}, we see the real solution to \label{ODE} has the form 
+Plugging this back into \eqref{sol}, we see the real solution to \eqref{ode} has the form 
 \begin{equation*}
 u(x) = b \sin \frac{n \pi x}{L}.
 \end{equation*}
@@ -122,7 +123,7 @@ for notational convenience. It just so happens that, with moderate restrictions,
 f(x) = \sum_{n = 1}^{\infty} b_n \Phi_n(x), \label{fourier}
 \end{equation}
 
-which is known as the Fourier series of $f(x)$. In order to satisfy the initial condition, we therefore just need to determine the coefficients $b_n$. This is done using the orthogonality of $\sin$ functions\footnote{see, e.g., \href{https://www.youtube.com/watch?v=87sM1B9rRjE}{this video} for a proof.}
+which is known as the Fourier series of $f(x)$. In order to satisfy the initial condition, we therefore just need to determine the coefficients $b_n$. This is done using the orthogonality of $\sin$ functions\footnote{See, e.g., \href{https://www.youtube.com/watch?v=87sM1B9rRjE}{this video} for a proof.}
 
 
 \begin{equation}
@@ -135,7 +136,7 @@ which is known as the Fourier series of $f(x)$. In order to satisfy the initial 
 
 where $\langle \ \cdot \ \cdot \ \rangle$ denotes our chosen inner product (in this case just the integral over our domain with no weighting function). It's common to write \eqref{ip} more concisely as
 \begin{equation}
-\langle \Phi_m(x) \Phi_n(x) \rangle = \frac{L}{2} \delta_{mn} \label{ip2}
+\langle \Phi_m(x) \Phi_n(x) \rangle = \frac{L}{2} \delta_{mn}, \label{ip2}
 \end{equation}
 
 where
@@ -147,7 +148,7 @@ where
   \end{cases}
 \end{equation*}
 
-is the Kronecker delta function. Now to determine the $m^{th}$ coefficient, $b_m$, we simply multiply both sides of \eqref{fourier} by $\Phi_m(x)$ and integrate over our domain to get
+is the Kronecker delta function. Now to determine the $m^{th}$ coefficient, $b_m$, we simply multiply both sides of \eqref{fourier} by $\Phi_m(x)$ and integrate over our domain to get\footnote{We assume we can interchange the integral and summation here.} 
 \begin{eqnarray*}
 \int_0^L f(x) \Phi_m(x) dx & = & \int_0^L \left( \sum_{n = 1}^{\infty} b_n \Phi_n(x) \right) \Phi_m(x) dx \\
 & = & \sum_{n = 1}^{\infty}  b_n  \left( \int_0^L \Phi_n(x) \Phi_m(x) dx \right) \\
@@ -168,6 +169,7 @@ b_m = \frac{\langle f(x) \Phi_m(x) \rangle }{\langle \Phi_m^2(x) \rangle}. \labe
 
 In this section, we introduced the Fourier series representation of a function and used the orthogonality of functions to obtain the coefficients. These concepts are fundamental to polynomial chaos.
 
+\
 
 
 
@@ -176,24 +178,24 @@ In this section, we introduced the Fourier series representation of a function a
 
 
 
-\section{Polynomial Expansions}
+\section{Polynomial Chaos Expansions}
 
-Similar to Fourier series expansions of functions as linear combinations of orthogonal trigonometric functions, $\Phi_j(x)$, we can also represent functions using linear combinations of orthogonal polynomials
+Similar to Fourier series expansions of functions as linear combinations of orthogonal trigonometric functions, $\Phi_j(x)$, we can also represent functions as linear combinations of orthogonal polynomials
 \begin{equation}
-f(x) = \sum_{j=0}^{\infty}  a_j \Psi_j(x) \label{simple}
+f(x) = \sum_{j=0}^{\infty}  a_j \Psi_j(x), \label{simple}
 \end{equation}
 
-where $\{ \Psi_j(x) \ | \ j = 0, 1, ... \}$ is a family of orthogonal polynomials, often referred to as the polynomial basis, satisfying
+where $\{ \Psi_j(x) \ | \ j = 0, 1, ... \}$ is a family of orthogonal polynomials, often referred to as the orthogonal polynomial basis, satisfying
 \begin{equation}
-\langle \Psi_m(x) \Psi_n(x) \rangle = \int \Psi_m(x) \Psi_n(x) w(x) dx = \gamma_m \delta_{mn} \label{orth_poly}
+\langle \Psi_m(x) \Psi_n(x) \rangle = \int \Psi_m(x) \Psi_n(x) w(x) dx = \gamma_m \delta_{mn}, \label{orth_poly}
 \end{equation}
 
-where the inner product is defined with respect to some weighting function $w(x)$ and $\gamma_m$ is a normalization constant. Note the similarity with \eqref{ip2}, but while Fourier series use orthogonal periodic functions for the basis, polynomial expansions use orthogonal polynomials, which are not periodic.
+where the inner product is defined with respect to some weighting function $w(x)$ and $\gamma_m$ is a normalization constant. Note the similarity to \eqref{ip}, but while Fourier series use orthogonal periodic functions for the basis, polynomial chaos expansions use orthogonal polynomials, which are not periodic.
 
-\qquad Following the same procedure as we used for the Fourier series, we can solve for the coefficients by multiplying both sides of \eqref{simple} by $\Psi_i(x)$ and integrating to get
+\qquad Following the same procedure as we used for the Fourier series, we can solve for the coefficients by multiplying both sides of \eqref{simple} by $\Psi_i(x)$ and taking the inner product to get\footnote{Again, we assume we can interchange the integral and summation here.} 
 \begin{eqnarray*}
-\int f(x) \Psi_i(x) dx & = & \int \left( \sum_{j = 0}^{\infty} a_j \Psi_j(x) \right) \Psi_i(x) dx \\
-& = & \sum_{j = 0}^{\infty}  a_j  \left( \int \Psi_j(x) \Phi_i(x) dx \right) \\
+\int f(x) \Psi_i(x) w(x) dx & = & \int \left( \sum_{j = 0}^{\infty} a_j \Psi_j(x) \right) \Psi_i(x) w(x) dx \\
+& = & \sum_{j = 0}^{\infty}  a_j  \left( \int \Psi_j(x) \Psi_i(x) w(x) dx \right) \\
 & = & \sum_{j = 0}^{\infty}  a_j  \langle \Psi_j(x) \Psi_i(x) \rangle \\
 & = & a_i  \langle \Psi_i^2(x) \rangle
 \end{eqnarray*}
@@ -208,10 +210,11 @@ which is analogous to \eqref{fourier_coef}. In practice, we truncate \eqref{simp
 f(x) \approx f_p(x) = \sum_{j=0}^{p}  a_j \Psi_j(x) \label{pce_trunc}
 \end{equation}
 
-\qquad The weighting function, $w(x)$, is often chosen to be a probability density function, and certain classes of polynomials are orthogonal with respect to well-known probability density functions. Examples of orthogonal polynomials (and the distribution, or {\em germ}, corresponding to their weighting function) include Legendre (uniform), Hermite (Gaussian), and Leguerre (exponential or Gamma) polynomials. We will focus on Hermite polynomials in this paper, but the results are easily extended to the others. 
+\qquad The weighting function, $w(x)$, is often chosen to be a probability density function, and certain classes of polynomials are orthogonal with respect to well-known probability density functions. Examples of orthogonal polynomials (and the distribution, or {\em germ}, corresponding to their weighting functions) include Legendre (uniform), Hermite (Gaussian), and Leguerre (exponential or Gamma) polynomials. We will focus on Hermite polynomials in this paper, but the results are easily extended to the others. 
 
-\qquad  Linear algebra provides some intuition for \eqref{simple}. In linear algebra, an $n$-dimensional vector can be represented as a linear combination of $n$ basis vectors. If we instead have a function, we can construct a vector as a discretized version of a function by taking function values at a discrete set of points. As we increase the resolution of the sampling points, we get an infinite dimensional vector in the limit. Therefore, functions can be thought of as infinite dimensional vectors, and we see that the linear combination of an infinite number of orthogonal polynomials for functions is analogous to a linear combination of $n$ orthogonal basis vectors for $n$-dimensional vectors. 
+\qquad  Linear algebra provides some intuition for \eqref{simple}. In linear algebra, an $n$-dimensional vector can be represented as a linear combination of $n$ basis vectors. If we have a function instead of a vector, we can construct a vector as a discretized version of a function by taking function values at a discrete set of points. As we increase the resolution of the sampling points, we get an infinite dimensional vector in the limit. Therefore, functions can be thought of as infinite dimensional vectors, and we see that the linear combination of an infinite number of orthogonal polynomials for functions is analogous to a linear combination of $n$ orthogonal basis vectors for $n$-dimensional vectors. 
 
+\
 
 
 
@@ -219,9 +222,9 @@ f(x) \approx f_p(x) = \sum_{j=0}^{p}  a_j \Psi_j(x) \label{pce_trunc}
 
 \section{Hermite Polynomials}
 
-As mentioned above, orthogonal Hermite polynomials use a Gaussian weighting function. We will therefore use $z$ to denote the independent variable when discussing Hermite polynomials.
+As mentioned above, orthogonal Hermite polynomials use a Gaussian weighting function. We will use $z$ to denote the independent variable when discussing Hermite polynomials.
 
-\qquad Polynomial expansions using Hermite polynomials have the following form
+\qquad Polynomial chaos expansions using Hermite polynomials have the following form
 \begin{eqnarray}
 f(z) & = & a_0 H_0 \nonumber \\
 & + & \sum_{i_1 = 1}^{d} a_{i_1} H_1(z_{i_1}) \nonumber \\
@@ -232,34 +235,34 @@ f(z) & = & a_0 H_0 \nonumber \\
 
 where
 \begin{equation}
-H_n(z_{i_1}, ..., z_{i_n}) = e^{\frac{1}{2} z^T z} (-1)^n \frac{\partial^n}{\partial z_{i_1} ... \partial z_{i_n}} e^{-\frac{1}{2} z^T z}, \label{hpoly}
+H_n(z_{i_1}, ..., z_{i_n}) = e^{\frac{1}{2} z^T z} (-1)^n \frac{\partial^n}{\partial z_{i_1} ... \partial z_{i_n}} e^{-\frac{1}{2} z^T z} \label{hpoly}
 \end{equation}
 
-and $z = (z_1, ... z_d) \in \mathbb{R}^d$ is a $d$-dimensional vector.  We may write \eqref{pce} in the form of \eqref{simple} by defining a one-to-one mapping between the $a_j$ and $a_{i_1 ... i_n}$ coefficients and a one-to-one mapping between the $\Psi_n(z)$ polynomials and the $H_n(z_{i_1}, ..., z_{i_n})$ basis functions.
+and $z = (z_1, ... z_d) \in \mathbb{R}^d$ is a $d$-dimensional vector.  We can write \eqref{pce} in the form of \eqref{simple} by defining a one-to-one mapping between the $a_{i_1 ... i_n}$ and $a_j$ coefficients and a one-to-one mapping between the $H_n(z_{i_1}, ..., z_{i_n})$ basis functions and the $\Psi_n(z)$ polynomials.
 
-\qquad The notation in \eqref{pce} and \eqref{hpoly} is standard, but can be quite confusing. Let's work through the details for 1-dimensional variables Hermite polynomials.\footnote{See Appendix \ref{app:hermite2d} for 2-dimensional Hermite polynomials.} We start with a scalar $z$ and consider the following Gaussian-type equation
+\qquad The notation in \eqref{pce} and \eqref{hpoly} can be confusing, so we'll work through the details for 1-dimensional Hermite polynomials.\footnote{See Appendix \ref{app:hermite2d} for 2-dimensional Hermite polynomials.} We start with a scalar $z \in \mathbb{R}$ and consider the following Gaussian-type equation
 \begin{equation}
-e^{-\frac{1}{2} z^2} \label{gaussian_exp}
+e^{-\frac{1}{2} z^2}. \label{gaussian_exp}
 \end{equation}
 
 Taking the derivative, we get
 \begin{equation*}
-\frac{d}{dz} e^{-\frac{1}{2} z^2} = -z e^{-\frac{1}{2} z^2}
+\frac{d}{dz} e^{-\frac{1}{2} z^2} = -z e^{-\frac{1}{2} z^2}.
 \end{equation*}
 
-Taking the derivative again, we get 
+Taking the derivative again and applying the product rule, we get 
 \begin{equation*}
-\frac{d^2}{dz^2} e^{-\frac{1}{2} z^2} = \frac{d}{dz} \left( -z e^{-\frac{1}{2} z^2} \right) = \left( z^2 - 1 \right) e^{-\frac{1}{2} z^2}
+\frac{d^2}{dz^2} e^{-\frac{1}{2} z^2} = \frac{d}{dz} \left( -z e^{-\frac{1}{2} z^2} \right) = \left( z^2 - 1 \right) e^{-\frac{1}{2} z^2}.
 \end{equation*}
 
-And again, we get 
+And taking the derivative again, we get 
 \begin{eqnarray*}
 \frac{d^3}{dz^3} e^{-\frac{1}{2} z^2} & = & \frac{d}{dz} \left( z^2 - 1 \right) e^{-\frac{1}{2} z^2} \nonumber \\
 & = & 2 z e^{-\frac{1}{2} z^2} + (z^2 - 1) (-z) e^{-\frac{1}{2} z^2} \nonumber \\
-& = & -( z^3 - 3 z) e^{-\frac{1}{2} z^2}
+& = & -( z^3 - 3 z) e^{-\frac{1}{2} z^2}.
 \end{eqnarray*}
 
-Using the following assignments for the polynomials on the right hand sides
+Using the following assignments for the polynomials on the right-hand sides
 \begin{eqnarray*}
 H_1(z) & = & z \\
 H_2(z) & = & z^2 - 1 \\
@@ -271,7 +274,7 @@ leads to the following general definition
 H_n(z) = e^{\frac{1}{2} z^2} (-1)^n \frac{d^n}{dz^n} e^{-\frac{1}{2} z^2}, \label{hpoly1d}
 \end{equation}
 
-which also satisfies $H_0(z) = 1$. By assigning $H_1(z) = H_1(z)$, $H_2(z) = H_2(z, z)$, $H_3(z) = H_3(z, z, z)$, and so on, we see that \eqref{hpoly1d} fits the form given in \eqref{hpoly}, since $H_n(z)$ is just $H_n (z_{i_1}, ..., z_{i_n})$ for $d = 1$. These are the Hermite polynomials for scalar $z$.\footnote{Specifically, the {\em probabilist's} Hermite polynomials. We could instead use $e^{-z^2}$ in place of $e^{-\frac{1}{2} z^2}$, which are known as the {\em physicist's} Hermite polynomials.}
+which also satisfies $H_0(z) = 1$. By assigning $H_1(z) = H_1(z)$, $H_2(z) = H_2(z, z)$, $H_3(z) = H_3(z, z, z)$, and so on, we see that \eqref{hpoly1d} fits the form given in \eqref{hpoly}, since $H_n(z)$ is just $H_n (z_{i_1}, ..., z_{i_n})$ for $d = 1$. These are the Hermite polynomials for scalar $z$.\footnote{Specifically, the {\em probabilist's} Hermite polynomials. If we instead used $e^{-z^2}$ for the derivation, we would get the {\em physicist's} Hermite polynomials.}
 
 \qquad It turns out that Hermite polynomials are orthogonal.\footnote{see, e.g., \href{https://www.youtube.com/playlist?list=PL2uXHjNuf12byaQWF2IU7i7h8D70-d8MW}{these videos} for a proof.} More concretely, it can be shown that the inner product has the following closed-form solution
 \begin{equation}
@@ -283,7 +286,7 @@ where
 \phi(z) = \frac{1}{\sqrt{2 \pi}}e^{-\frac{1}{2} z^2}
 \end{equation*}
 
-is the standard normal density function. Note that \eqref{hip} is zero whenever $m \neq n$, as required.
+is the standard normal probability density function. Note that \eqref{hip} is zero whenever $m \neq n$, as required.
 
 \qquad Starting with \eqref{pce}, we may plug in \eqref{hpoly} for a 1-dimensional $z$, which is just \eqref{hpoly1d}, to get 
 \begin{eqnarray}
@@ -302,23 +305,27 @@ f(z) = \sum_{j=0}^{\infty} a_j H_j(z).
 \end{equation}
 
 
-\
-
-\textbf{Exercise 3.a} Plot the first 3, 5, and 8 Hermite polynomials. What can be said about them?
 
 \
 
-\textbf{Exercise 3.b} Construct the Hermite polynomial expansion of $f(z) = 10 + 2z$.
+\
+
+\textbf{Exercise 3.a} \ Plot the first 3, 5, and 8 Hermite polynomials. What can be said about them?
 
 \
 
-\textbf{Exercise 3.c} Construct the Hermite polynomial expansion of $f(z) = \sin(4z)/z$.
+\textbf{Exercise 3.b} \ Construct the Hermite polynomial expansion of $f(z) = 10 + 2z$.
 
 \
 
-\textbf{Exercise 3.d} Construct the Hermite polynomial expansion of $f(z) = |z|$.
+\textbf{Exercise 3.c} \ Construct the Hermite polynomial expansion of $f(z) = \sin(4z)/z$.
 
 \
+
+\textbf{Exercise 3.d} \ Construct the Hermite polynomial expansion of $f(z) = |z|$.
+
+\
+
 
 
 
@@ -329,29 +336,44 @@ f(z) = \sum_{j=0}^{\infty} a_j H_j(z).
 
 We've seen how to represent an arbitrary deterministic function as a linear combination of orthogonal basis functions, for both the Fourier basis and for orthogonal polynomial bases. It turns out, we can also represent functions of random variables using orthogonal polynomial bases in \eqref{simple}. As might be expected, constructing orthogonal polynomials with respect to probability densities allows for some analytical results.
 
-\qquad For random variables with known probability distributions, the natural choice of orthogonal polynomial basis is the class for which $w(x)$ in \eqref{orth_poly} is related to the probability density function of the random variable $X$. For instance, the natural choice of orthogonal polynomial basis for a Gaussian random variable, $Z$,  is the Hermite polynomial basis $\Psi_j = H_j$. 
+\qquad For a random variable, $X$, with known probability distribution, the natural choice of orthogonal polynomial basis is the class for which $w(x)$ in \eqref{orth_poly} is related to the probability density function of the random variable $X$. For instance, the natural choice of orthogonal polynomial basis for a Gaussian random variable, $Z$,  is the Hermite polynomial basis $\Psi_j = H_j$, since the associated weighting function is $\phi(z)$.
+
+
 
 \
 
-\textbf{Exercise 4.a} Construct the Hermite polynomial expansion of $f(Z) = Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
+\
+
+\textbf{Exercise 4.a} \ Construct the Hermite polynomial expansion of $f(Z) = Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
 
 \
 
-\textbf{Exercise 4.b} Construct the Hermite polynomial expansion of $f(Z) = 10 + 2Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
+\textbf{Exercise 4.b} \ Construct the Hermite polynomial expansion of $f(Z) = 10 + 2Z$ where $Z \sim N(0,1)$. What are the values of the coefficients?
 
 \
 
-\textbf{Exercise 4.c} Construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
+\textbf{Exercise 4.c} \ Construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
+
+\
 
 \
 
 
 
-This works well for functions of standard classes of known probability distributions. But what if we have an arbitrary random variable $Y$ with cumulative distribution function $F_Y(y) = P(Y \leq y)$? In this case, not only might $Y$ not be a function of a known random variable $X$, as we saw above, but the cdf might not even have an analytical form (e.g. an empirical distribution). By transforming $X$ into a uniform random variable, we can generalize the inner product $\langle Y \ \Psi_i(x) \rangle$ to handle any arbitrary $Y$. 
+This works well for functions of standard classes of known probability distributions. But what if we have an arbitrary random variable $Y$ with cumulative distribution function $F_Y(y) = P(Y \leq y)$? In this case, not only might $Y$ not be a function of a known random variable $X$, but the CDF might not even have an analytical form (e.g. it could be an empirical distribution). By transforming the germ $X$ into a uniform random variable, we can generalize the inner product $\langle Y \ \Psi_i(x) \rangle$ to handle any arbitrary $Y$.
 
-\qquad We start by transforming $X$ into a $U \sim U(0,1)$ uniform random variable using the cdf $F_X(x) = P(X \leq x)$, since $F_X(X) \sim U$. Then given the CDF of $Y$, we can transform $U$ into a $Y$ random variable using the inverse transform $Y \sim F_Y^{-1}(U)$. In other words, we can use the mapping $Y(X) = F_Y^{-1} (F_X(X))$. This gives us the following inner product
+\qquad We start by transforming $X$ into a $U \sim U(0,1)$ uniform random variable using its CDF $F_X(x) = P(X \leq x)$, since $F_X(X) \sim U$.\footnote{The cumulative distribution function $P(X \leq x) = F_X(x) = u$ maps any value of $x$ into $u \in [0, 1]$, and the inverse transform maps $F_X^{-1}(u) = x$ for any $u \in [0, 1]$. Furthermore, $F_X^{-1}(F_X(x)) = x$ and $F_X(F_X^{-1}(u)) = u$. Therefore, 
+\begin{equation*}
+P(F_X(X) \leq c) = P(X \leq F_X^{-1}(c)) = F_X(F_X^{-1}(c)) = c, \qquad c \in [0, 1]
+\end{equation*}
+so $F_X(X)$ is uniformly distributed, since only the uniform distribution satisfies $P(U \leq c) = c$. Similarly,
+\begin{equation*}
+P(F_X^{-1}(U) \leq x) = P(U \leq F_X(x)) = F_X(x),
+\end{equation*}
+again since $P(U \leq c) = c$ where we've taken $c = F_X(x)$ in this case, so $F_X^{-1}(U) \sim X$. This latter relationship is known as the inverse transform method, since it allows us to transform a uniform random variable $U$ into $X$ using the inverse transform of $X$.}
+Then given the CDF of $Y$, we can transform $U$ into a $Y$ random variable using the inverse transform $Y \sim F_Y^{-1}(U)$. We therefore have the mapping $Y(X) = F_Y^{-1} (F_X(X))$. This gives us the following inner product
 \begin{equation}
-\int_{-\infty}^{\infty} Y(x) \Psi_k(x) w(x) dx = \int_{-\infty}^{\infty} F_Y^{-1} (F_X(x)) \Psi_k(z) w(x) dx \label{ip_arb}
+\int_{-\infty}^{\infty} Y(x) \Psi_k(x) w(x) dx = \int_{-\infty}^{\infty} F_Y^{-1} (F_X(x)) \Psi_k(x) w(x) dx \label{ip_arb}
 \end{equation}
 
 and we can rewrite \eqref{pc_coef} as
@@ -359,9 +381,9 @@ and we can rewrite \eqref{pc_coef} as
 a_i = \frac{\langle F_Y^{-1} (F_X(x)) \ \Psi_i(x) \rangle}{\langle \Psi_i^2(x) \rangle}. \label{pc_coef_arb}
 \end{equation}
 
-While the above transformations are theoretically sound, they have a tendency to be numerically unstable due to numerical errors in the tails of \eqref{ip_arb}. However, since $F_X(X) \sim U(0,1)$ and $X \sim F_X^{-1}(U)$, we can transform the inner product in \eqref{ip_arb} with respect to $X$ into the following inner product with respect to a $U(0, 1)$ random variable
+\qquad While the above transformations are theoretically sound, they have a tendency to be numerically unstable due to numerical errors in the tails of \eqref{ip_arb}. However, since $F_X(X) \sim U$ and $X \sim F_X^{-1}(U)$, we can transform the inner product in \eqref{ip_arb} with respect to $X$ into the following inner product with respect to a $U(0, 1)$ random variable
 \begin{equation}
-\int_{-\infty}^{\infty} F_Y^{-1} (F_X(x)) \Psi_k(z) w(x) dx = \int_{0}^{1} F_Y^{-1} (u) \Psi_k(F_X^{-1}(u)) du \label{ip_unif}
+\int_{-\infty}^{\infty} F_Y^{-1} (F_X(x)) \Psi_k(x) w(x) dx = \int_{0}^{1} F_Y^{-1} (u) \Psi_k(F_X^{-1}(u)) du, \label{ip_unif}
 \end{equation}
 
 since the weighting function (i.e. probability density function) in the inner product for the $U(0,1)$ uniform distribution is $w(u) = 1$. The coefficients are therefore
@@ -369,9 +391,9 @@ since the weighting function (i.e. probability density function) in the inner pr
 a_i = \frac{\langle F_Y^{-1}(u) \ \Psi_k(F_X^{-1}(u)) \rangle_u}{\langle \Psi_k^2(x) \rangle} \label{pc_coef_unif}
 \end{equation}
 
-where $\langle \cdot \ \cdot \rangle_u$ is the inner product for the uniform distribution. Note that no adjustments are needed for the denominator, since we may continue to use the orthogonality of $\Psi_i(x)$ just as we did before. While \eqref{ip_arb} and \eqref{ip_unif} are mathematically equivalent, \eqref{ip_unif} avoids numerical errors in the tails, since the integral is taken from $[0, 1]$ instead of $(-\infty, \infty)$.
+where $\langle \cdot \ \cdot \rangle_u$ is the inner product for the uniform distribution. Note that no adjustments are needed for the denominator, since we may continue to use the orthogonality of $\Psi_i(x)$ just as we did before. While the right-hand sides of \eqref{ip_arb} and \eqref{ip_unif} are mathematically equivalent, \eqref{ip_unif} avoids numerical errors in the tails, since the integral is taken from $[0, 1]$ instead of $(-\infty, \infty)$.
 
-\qquad The polynomial expansion in \eqref{simple} then becomes
+\qquad Finally, since $F_X^{-1}(U) \sim X$, we can rewrite the polynomial chaos expansion in \eqref{simple} as
 \begin{equation}
 f(u) = \sum_{j=0}^{\infty}  a_j \Psi_j(F_X^{-1}(u)) \label{simple2}
 \end{equation}
@@ -379,21 +401,32 @@ f(u) = \sum_{j=0}^{\infty}  a_j \Psi_j(F_X^{-1}(u)) \label{simple2}
 
 \
 
-\textbf{Exercise 4.d} Using the uniform transformation in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
+\
+
+\textbf{Exercise 4.d} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $f(Z) = e^{\mu + \sigma Z}$, where $\mu = 1$, $\sigma = 0.1$, and $Z \sim N(0,1)$. What are the values of the coefficients?
 
 \
 
-\textbf{Exercise 4.e} Using the uniform transformation in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Beta(\alpha, \beta)$, where $\alpha = \beta = 0.5$. What are the values of the coefficients?
+\textbf{Exercise 4.e} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Beta(\alpha, \beta)$, where $\alpha = \beta = 0.5$. What are the values of the coefficients?
 
 \
 
+\textbf{Exercise 4.f} \ Using the transformations in \eqref{ip_unif}--\eqref{simple2}, construct the Hermite polynomial expansion of $Y \sim Exp(\lambda)$, where $\lambda = 1$. What are the values of the coefficients?
 
+\
 
+\
+
+Note that instead of using \eqref{ip_unif}--\eqref{simple2} for the Hermite polynomial chaos expansion of the exponential random variable in Exercise 4.f, we could have directly used \eqref{orth_poly}--\eqref{pce_trunc} with Leguerre polynomials, since their associated germ is the exponential (Gamma) pdf. So which approach is better? While both will work, the polynomial chaos expansion using the orthogonal polynomial basis associated with the given random variable (Leguerre in this case) will usually converge to the random variable much quicker (i.e. the expansion will require a smaller $p$, sometimes substantially smaller).
+
+\
+
+\
 
 
 \subsection{Statistical Moments}
 
-Note that the right side of \eqref{pce_trunc} is an {\em analytical} surrogate to function $f$ on the left. This opens up the possibility of analytically calculating the approximate moments of $f(X)$. When the weighting function in the inner product is a probability density function and the orthogonal polynomials are normalized such that $\Psi_0(X) = 1$, we can directly use the inner products to calculate expected values, since $\langle \cdot \rangle = E[ \cdot]$. This gives us
+Note that the right side of \eqref{pce_trunc} is an {\em analytical} surrogate to function $f$ on the left. This opens up the possibility of analytically calculating the approximate moments of $f(X)$. When the weighting function in the inner product is a probability density function and the orthogonal polynomials are normalized such that $\Psi_0(X) = 1$, we can directly use the inner products to calculate expected values, since $\langle \, \cdot \, \rangle = E[ \, \cdot \, ]$. This gives us
 \begin{eqnarray}
 E [ f(X) ] & \approx & E [ f_p(X) ] \nonumber \\
 & = & E [ f_p(X) \Psi_0(X) ] \nonumber \\
@@ -420,11 +453,15 @@ Var(f(X)) & = & E \left[ f^2(X) \right] - E^2 \left[ f(X) \right] \nonumber \\
 & = & \sum_{j = 1}^p a_j^2  \langle \Psi_j^2(X) \rangle \label{pce_var}
 \end{eqnarray}
 
-since $\langle \Psi_0^2(X) \rangle = 1$. Again, this holds regardless of the chosen orthogonal polynomial basis. Therefore, once we solve for the coefficients of our polynomial chaos representation of $f$, the average response and confidence intervals are essentially automatic using \eqref{pce_mu} and \eqref{pce_var}.
+since $\langle \Psi_0^2(X) \rangle = 1$. Again, this holds regardless of the chosen orthogonal polynomial basis. Therefore, once we solve for the coefficients of our polynomial chaos representation of $f$, the mean and variance are essentially automatic using \eqref{pce_mu} and \eqref{pce_var}.
 
 \
 
-\textbf{Exercises 4.1.a-e} Calculate the mean and variance of all random variables in exercises 4.a-e using \eqref{pce_mu} and \eqref{pce_var}. Do they match the closed-form statistics for these distributions?
+\
+
+\textbf{Exercises 4.1.a-f} Calculate the mean and variance of all random variables in exercises 4.a-f using \eqref{pce_mu} and \eqref{pce_var}. Do they match the closed-form statistics for these distributions?
+
+\
 
 \
 
@@ -437,8 +474,7 @@ since $\langle \Psi_0^2(X) \rangle = 1$. Again, this holds regardless of the cho
 
 
 
-
-\section{Polynomial Expansions of Functions with Random Parameters}
+\section{Polynomial Chaos Expansions of Functions with Random Parameters}
 
 We will use the following simple equation as our example model
 \begin{equation}
@@ -449,6 +485,7 @@ where the model parameter $r$ is random. This problem could be calculated using 
 
 \qquad Alternatively, we could use polynomial chaos, which can be applied in two main ways: intrusive and non-intrusive. We will cover both approaches below.
 
+\
 
 \
 
@@ -456,6 +493,7 @@ where the model parameter $r$ is random. This problem could be calculated using 
 
 \
 
+\
 
 
 
@@ -463,9 +501,9 @@ where the model parameter $r$ is random. This problem could be calculated using 
 
 The intrusive approach applies polynomial chaos expansions directly to both the model parameters {\em and} model equations. Intrusive methods therefore require full knowledge of the model equations. The most common intrusive approach is known as stochastic Galerkin projection.
 
-\qquad Given our example model, we start by applying the polynomial chaos expansion method to both $r$ and $v(t)$ using the same polynomial basis for both as follows
+\qquad Given our example model, we start by applying the polynomial chaos expansion method to both $r$ and $v(t)$ using the same orthogonal polynomial basis (with germ $x$) for both as follows
 \begin{eqnarray}
-r(x) & \approx & \sum_{i=0}^p \hat{r}_i \Psi_i(x) \label{alpha_pce} \\
+r(x) & \approx & \sum_{i=0}^p \hat{r}_i \Psi_i(x) \label{r_pce} \\
 v(x, t) & \approx & \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x) \label{v_pce}
 \end{eqnarray}
 
@@ -483,7 +521,7 @@ Similar to the derivation in Section 2, we multiply \eqref{dv_pce} by $\Psi_k(x)
 & = & \frac{d\hat{v}_k(t)}{dt} \langle \Psi_k^2(x) \rangle \label{lhs}
 \end{eqnarray}
 
-Similarly, the inner product of the right hand side of \eqref{v_example} and $\Psi_k(x)$ can be approximated using the polynomial chaos representations in \eqref{alpha_pce} and \eqref{v_pce} as follows
+Similarly, the inner product of the right-hand side of \eqref{v_example} and $\Psi_k(x)$ can be approximated using the polynomial chaos representations in \eqref{r_pce} and \eqref{v_pce} as follows
 \begin{eqnarray}
  - \int r(x) v(x, t) \Psi_k(x) w(x) dx & \approx & - \int \left( \sum_{i=0}^p \hat{r}_i \Psi_i(x) \right) \left( \sum_{j=0}^p \hat{v}_j(t) \Psi_j(x) \right) \Psi_k(x) w(x) dx \nonumber \\
 & = & - \int \sum_{i=0}^p \sum_{j=0}^p \hat{r}_i \hat{v}_j(t) \Psi_i(x) \Psi_j(x) \Psi_k(x) w(x) dx \nonumber \\
@@ -513,6 +551,10 @@ This looks quite complicated, but note that quantity in parentheses is constant,
 
 for some $p \times p$ matrix $A$. In other words, the Galerkin projection gives us a single $p^{th}$ order ODE to solve instead of $N$ ODE's we'd need to run for monte carlo analysis. Since $p$ is typically small (e.g. $p < 50$) and $N$ is typically large (e.g. $N = 10,000$), the savings in computational time can be substantial.
 
+
+
+\
+
 \
 
 \textbf{Exercise 5.b} Construct the Hermite polynomial expansion of $r \sim N(\mu, \sigma^2)$, where $\mu = 0.2$ and $\sigma = 0.05$ for $p = 10$. What are the values of the coefficients?
@@ -523,34 +565,39 @@ for some $p \times p$ matrix $A$. In other words, the Galerkin projection gives 
 
 \
 
+\
 
 
 
 \subsection{Non-Intrusive Approach}
 
-When we do not know the details of the model or the model is not amenable to the intrusive approach (e.g. when we aren't able to reformulate and recode the model, as is necessary with an intrusive approach), we can use a non-intrusive approach, where we essentially treat the model as a black box. In this approach, we have a set of $N$ pairs of model parameter inputs, $x_i$, and model outputs, $f_i$, which comprise the training set $\mathcal{D} = \{ (x_i, f_i) \ | \ 1 \leq i \leq N \}$. We wish to solve for the coefficients, such that the following equation is satisfied for all samples
+When we do not know the details of the model or the model is not amenable to the intrusive approach (e.g. when we aren't able to reformulate and recode the model, as is necessary with an intrusive approach), we can use a non-intrusive approach, where we essentially treat the model as a black box.
+
+\qquad Just like the intrusive approach, we start by assuming $r$ and $v(t)$ are represented using \eqref{r_pce} and \eqref{v_pce}. But rather than explicitly deriving the equations for $v(t)$, we instead take a set of $N$ pairs of model parameter inputs, $r_i = r(x_i)$, and model outputs, $v_i = v(x_i, t)$, where $x_i$ is the germ and $t$ is the same fixed value for for all $i$. In other words, we generate the $x_i$ (e.g. using some experimental design methodology), derive $r(x_i)$ using its polynomial chaos expansion \eqref{r_pce}, and then evaluate $v_i = v(t)$ using each value of $r_i$. This gives us our training set $\mathcal{D} = \{ (x_i, v_i) \ | \ 1 \leq i \leq N \}$. We wish to solve for the coefficients in \eqref{v_pce}, such that the following equations are satisfied for all samples
 \begin{equation}
-\sum_{j=0}^{p}  a_j \Psi_j(x_i) = f_i, \qquad 1 \leq i \leq N. \label{pce_train} 
+\sum_{j=0}^{p}  a_j \Psi_j(x_i) \approx v_i, \qquad 1 \leq i \leq N. \label{pce_train} 
 \end{equation}
 
-Note that this function is linear in $i$ and that $x_i$ is transformed using the orthogonal polynomial basis functions. In other words, this problem has the following form
+Note that this function is linear in $a_j$ and that the $x_i$ are transformed using the orthogonal polynomial basis functions for germ $x$. In other words, this problem has the following form
 \begin{equation}
 \begin{bmatrix} \Psi_0(x_1) & \cdots & \Psi_p(x_1) \\ \vdots & \ddots & \vdots \\ \Psi_0(x_N) & \cdots & \Psi_p(x_N) \end{bmatrix}
 \begin{bmatrix} a_0 \\  \vdots \\  a_p \end{bmatrix}
-=
-\begin{bmatrix} f_1 \\  \vdots \\  f_N \end{bmatrix}
+\approx
+\begin{bmatrix} v_1 \\  \vdots \\  v_N \end{bmatrix}
 \end{equation}
 
 or more succinctly
 \begin{equation}
-\mathbf{\Psi} \mathbf{a} = \mathbf{f}
+\mathbf{\Psi} \mathbf{a} \approx \mathbf{v}
 \end{equation}
 
-where $\mathbf{\Psi}$ is the $N \times p$ design matrix, $\mathbf{a}$ is a $p \times 1$ column vector, and $\mathbf{f}$ is a $N \times 1$ column vector. We can solve for the coefficient vector, $\mathbf{a}$, using linear regression. Note that the polynomial basis functions can grow very large for higher-order expansions. Therefore, it might be desirable to use some form of regularization (e.g. Ridge regression) when solving for the coefficients to limit their size. 
+where $\mathbf{\Psi}$ is the $N \times p$ design matrix, $\mathbf{a}$ is a $p \times 1$ column vector, and $\mathbf{v}$ is a $N \times 1$ column vector. Since our goal is to solve for the coefficient vector, $\mathbf{a}$, we can formulate the problem using least-squares and solve it with linear regression. Note that the polynomial basis functions can grow very large for higher-order expansions, so it might be desirable to use some form of regularization (e.g. Ridge regression) when solving for the coefficients to limit their size.
 
-\qquad The number of function evaluations required for fitting the coefficients is typically much lower than for monte carlo simulation. This means that it's often much faster to fit the surrogate function and calculate moments than it is to run a full monte carlo simulation. Therefore, just like intrusive methods, the savings in computational time can be substantial.
+\qquad The number of function evaluations required for fitting the coefficients is typically much smaller than for monte carlo simulation. This means that it's often much faster to fit the surrogate function (i.e. coefficients) and calculate moments than it is to run a full monte carlo simulation. Therefore, just like intrusive methods, the savings in computational time can be substantial.
 
 
+
+\
 
 \
 
@@ -584,7 +631,6 @@ where $\mathbf{\Psi}$ is the $N \times p$ design matrix, $\mathbf{a}$ is a $p \t
 
 \textbf{Appendix} \label{app:hermite2d}
 
-%\appendix
 \begin{appendix}
 
 \section{Hermite Polynomials in 2-Dimensions} \label{app:hermite2d}
@@ -607,10 +653,10 @@ Applying \eqref{hpoly}, we get
 H_1(z_1) = e^{-\frac{1}{2} z^T z} (-1) \left( -z_1 e^{-\frac{1}{2} z^T z} \right) = z_1.
 \end{equation}
 
-Similarly, $H_1(z_2) = z_2$. Taking the derivative again with respect to $z_1$, we get
+Similarly, $H_1(z_2) = z_2$. Taking the derivative again with respect to $z_1$ and applying the product rule, we get
 
 \begin{equation*}
-\frac{\partial^2}{\partial z_1 \partial z_1} e^{-\frac{1}{2} z^T z} = \frac{\partial}{\partial z_1} \left( -z_1 e^{-\frac{1}{2} z^T z} \right) = \left( z_1^2 - 1 \right) e^{-\frac{1}{2}, z^T z}
+\frac{\partial^2}{\partial z_1 \partial z_1} e^{-\frac{1}{2} z^T z} = \frac{\partial}{\partial z_1} \left( -z_1 e^{-\frac{1}{2} z^T z} \right) = \left( z_1^2 - 1 \right) e^{-\frac{1}{2}, z^T z},
 \end{equation*}
 
 which gives us
@@ -631,21 +677,21 @@ which leads to
 H_2(z_2, z_1) = e^{-\frac{1}{2} z^T z} (-1)^2 (z_2 z_1 ) e^{-\frac{1}{2} z^T z} = z_2 z_1.
 \end{equation}
 
-The third-order derivative with respect to $z_1$ is calculated as
-\begin{eqnarray}
+The third-order derivative with respect to $z_1$ is given by
+\begin{eqnarray*}
 \frac{\partial^3}{\partial z_1 \partial z_1 \partial z_1} e^{-\frac{1}{2} z^T z} & = & \frac{\partial^2}{\partial z_1 \partial z_1} \left( -z_1 e^{-\frac{1}{2} z^T z} \right) \nonumber \\
 & = & \frac{\partial}{\partial z_1} \left( z_1^2 - 1 \right) e^{-\frac{1}{2} z^T z} \nonumber \\
-& = & 2 z_1^2 e^{-\frac{1}{2} z^T z} + (z_1^2 - 1) (-z_1) e^{-\frac{1}{2} z^T z} \nonumber \\
-& = & -( z_1^3 + 3 z_1) e^{-\frac{1}{2} z^T z},
-\end{eqnarray}
+& = & 2 z_1 e^{-\frac{1}{2} z^T z} + (z_1^2 - 1) (-z_1) e^{-\frac{1}{2} z^T z} \nonumber \\
+& = & -( z_1^3 - 3 z_1) e^{-\frac{1}{2} z^T z},
+\end{eqnarray*}
 
 which gives us
 
 \begin{equation}
-H_3(z_1, z_1, z_1) = e^{-\frac{1}{2} z^T z} (-1)^3 \left( -( z_1^3 + 3 z_1) e^{-\frac{1}{2} z^T z} \right) = z_1^3 + 3 z_1.
+H_3(z_1, z_1, z_1) = e^{-\frac{1}{2} z^T z} (-1)^3 \left( -( z_1^3 - 3 z_1) e^{-\frac{1}{2} z^T z} \right) = z_1^3 - 3 z_1.
 \end{equation}
 
-Similarly, $H_3(z_2, z_2, z_2) = z_2^3 + 3 z_2$. Finally, we have
+Similarly, $H_3(z_2, z_2, z_2) = z_2^3 - 3 z_2$. Finally, we have
 \begin{eqnarray*}
 \frac{\partial^3}{\partial z_2 \partial z_1 \partial z_1} e^{-\frac{1}{2} z^T z} & = & \frac{\partial^2}{\partial z_2 \partial z_1} \left( -z_1 e^{-\frac{1}{2} z^T z} \right) \nonumber \\
 & = & \frac{\partial}{\partial z_2} \left( z_1^2 - 1 \right) e^{-\frac{1}{2} z^T z} \nonumber \\
@@ -656,7 +702,7 @@ Similarly, $H_3(z_2, z_2, z_2) = z_2^3 + 3 z_2$. Finally, we have
 which leads to
 
 \begin{equation}
-H_3(z_2, z_1, z_1) = e^{-\frac{1}{2} z^T z} (-1)^3 \left( -(z_1^2 z_2 - z_2) e^{-\frac{1}{2} z^T z} \right) = z_1^2 z_2 - z_2
+H_3(z_2, z_1, z_1) = e^{-\frac{1}{2} z^T z} (-1)^3 \left( -(z_1^2 z_2 - z_2) e^{-\frac{1}{2} z^T z} \right) = z_1^2 z_2 - z_2.
 \end{equation}
 
 By symmetry, we also have $H_3(z_2, z_2, z_1) = z_1 z_2^2 - z_1$.
@@ -664,6 +710,7 @@ By symmetry, we also have $H_3(z_2, z_2, z_1) = z_1 z_2^2 - z_1$.
 \
 
 Applying \eqref{pce} with  $z = (z_1, z_2)$, we get 
+
 \begin{eqnarray}
 f(z) & = & a_0 H_0 \nonumber \\
 & + & a_1 H_1(z_1) + a_2 H_1(z_2) \nonumber \\
@@ -673,21 +720,16 @@ f(z) & = & a_0 H_0 \nonumber \\
 \end{eqnarray}
 
 or, equivalently,
+
 \begin{eqnarray}
 f(z) & = & a_0 \nonumber \\
 & + & a_1 z_1 + a_2 z_2 \nonumber \\
 & + & a_{11} (z_1^2 - 1) + a_{21} z_1 z_2 + a_{22} (z_2^2 - 1) \nonumber \\
-& + & a_{111} (z_1^3 + 3 z_1) + a_{211} (z_1^2 z_2 - z_2) + a_{221} (z_1 z_2^2 - z_1) + a_{222} (z_2^3 + 3 z_2) \nonumber \\
+& + & a_{111} (z_1^3 - 3 z_1) + a_{211} (z_1^2 z_2 - z_2) + a_{221} (z_1 z_2^2 - z_1) + a_{222} (z_2^3 - 3 z_2) \nonumber \\
 & + & ... \label{pce2db}
 \end{eqnarray}
 
 Enumerating the summands from left to right, we can represent \eqref{pce2da} and \eqref{pce2db} using the simplified notation in \eqref{simple}.
-
-
-
-%\subsection{Higher Dimensions}
-
-%As is clear above, polynomial chaos expansions become increasingly tedious as the dimension of the variable we wish to represent increases in dimension. Fortunately, we do not need to do these expansions by hand and can instead use a programming environment to automate these calculations.
 
 \end{appendix}
 
